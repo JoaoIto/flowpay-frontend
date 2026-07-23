@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Users, Clock, CheckCircle2, XCircle, Activity } from 'lucide-react';
 import { dashboardSse } from '../services/sseClient';
-import { DashboardSnapshot, GlobalMetrics, TeamMetricsResult } from '../types/dashboard';
+import type { DashboardSnapshot, GlobalMetrics, TeamMetricsResult } from '../types/dashboard';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -25,24 +25,25 @@ const initialMetrics: DashboardSnapshot = {
 };
 
 // Component to flash green/red when a number changes
-function AnimatedNumber({ value, prefix = "", suffix = "", formatter = (v: number) => v.toString() }: { value: number, prefix?: string, suffix?: string, formatter?: (v: number) => string }) {
-  const [displayValue, setDisplayValue] = useState(value);
+function AnimatedNumber({ value, prefix = "", suffix = "", formatter = (v: number) => (v ?? 0).toString() }: { value?: number, prefix?: string, suffix?: string, formatter?: (v: number) => string }) {
+  const safeValue = value ?? 0;
+  const [displayValue, setDisplayValue] = useState(safeValue);
   const [flashClass, setFlashClass] = useState("");
-  const prevValue = useRef(value);
+  const prevValue = useRef(safeValue);
 
   useEffect(() => {
-    if (value !== prevValue.current) {
-      const isUp = value > prevValue.current;
+    if (safeValue !== prevValue.current) {
+      const isUp = safeValue > prevValue.current;
       setFlashClass(isUp ? "text-emerald-500 scale-110" : "text-rose-500 scale-95");
-      setDisplayValue(value);
-      prevValue.current = value;
+      setDisplayValue(safeValue);
+      prevValue.current = safeValue;
       
       const timer = setTimeout(() => {
         setFlashClass("");
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [value]);
+  }, [safeValue]);
 
   return (
     <span className={cn("inline-block transition-all duration-300 transform", flashClass)}>

@@ -1,4 +1,4 @@
-import { DashboardSnapshot } from '../types/dashboard';
+import type { DashboardSnapshot } from '../types/dashboard';
 
 type SseCallback = (data: DashboardSnapshot) => void;
 
