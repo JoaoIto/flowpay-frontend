@@ -1,4 +1,5 @@
-import { ReactNode, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { LayoutDashboard, Users, MessageSquareText, Settings, Moon, Sun } from 'lucide-react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { clsx } from 'clsx';

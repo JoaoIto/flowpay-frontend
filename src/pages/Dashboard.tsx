@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Users, Clock, CheckCircle2, XCircle, Activity } from 'lucide-react';
 import { dashboardSse } from '../services/sseClient';
-import type { DashboardSnapshot, GlobalMetrics, TeamMetricsResult } from '../types/dashboard';
+import type { DashboardSnapshot } from '../types/dashboard';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -185,7 +185,7 @@ export function Dashboard() {
               <div className="flex justify-between text-sm mb-3">
                 <span className="text-slate-600 dark:text-slate-400 font-medium">Capacidade da Operação</span>
                 <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                  <AnimatedNumber value={globalMetrics.availableAgents} /> disponíveis
+                  <AnimatedNumber value={globalMetrics.totalAvailableAgents} /> disponíveis
                 </span>
               </div>
               <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden">
