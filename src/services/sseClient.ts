@@ -12,7 +12,7 @@ class DashboardSseClient {
     this.url = url;
   }
 
-  public connect(onMessage: SseCallback) {
+  public connect(onMessage: SseCallback, onStatusChange?: (isConnected: boolean) => void) {
     if (this.isConnecting || (this.eventSource && this.eventSource.readyState === EventSource.OPEN)) {
       return; // Already connected or connecting
     }
@@ -28,6 +28,7 @@ class DashboardSseClient {
 
     this.eventSource.onopen = () => {
       this.isConnecting = false;
+      if (onStatusChange) onStatusChange(true);
       console.log('✅ SSE Connected to Dashboard Stream');
     };
 
@@ -44,6 +45,7 @@ class DashboardSseClient {
 
     this.eventSource.onerror = (error) => {
       this.isConnecting = false;
+      if (onStatusChange) onStatusChange(false);
       console.error('❌ SSE connection error:', error);
       // EventSource tries to reconnect automatically. We don't close it to allow native reconnection.
     };

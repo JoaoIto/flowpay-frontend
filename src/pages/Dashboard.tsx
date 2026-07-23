@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Users, Clock, CheckCircle2, XCircle, Activity } from 'lucide-react';
 import { dashboardSse } from '../services/sseClient';
+import api from '../services/api';
 import type { DashboardSnapshot } from '../types/dashboard';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -57,11 +58,29 @@ export function Dashboard() {
   const [snapshot, setSnapshot] = useState<DashboardSnapshot>(initialMetrics);
   const [isConnected, setIsConnected] = useState(false);
 
+  const fetchDashboardData = async () => {
+    try {
+      const response = await api.get('/dashboard');
+      setSnapshot(response.data);
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+    }
+  };
+
   useEffect(() => {
-    dashboardSse.connect((data) => {
-      setSnapshot(data);
-      if (!isConnected) setIsConnected(true);
-    });
+    // Initial fetch
+    fetchDashboardData();
+
+    // Subscribe to SSE for updates
+    dashboardSse.connect(
+      (eventData) => {
+        // Whenever an event arrives (e.g. CHAT_QUEUED), refetch the dashboard
+        fetchDashboardData();
+      },
+      (connected) => {
+        setIsConnected(connected);
+      }
+    );
 
     return () => {
       dashboardSse.disconnect();
