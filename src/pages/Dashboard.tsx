@@ -4,6 +4,7 @@ import { dashboardSse } from '../services/sseClient';
 import type { DashboardSnapshot } from '../types/dashboard';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useLogsStore } from '../store/logsStore';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -220,6 +221,60 @@ export function Dashboard() {
 
       </div>
 
+      {/* Últimos Logs */}
+      <RecentLogsCard />
+
+    </div>
+  );
+}
+
+function RecentLogsCard() {
+  const { logs } = useLogsStore();
+  const recentLogs = logs.slice(0, 5);
+
+  return (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm transition-colors duration-300">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+          <Activity className="text-amber-500" size={20} />
+          Últimos Logs da API
+        </h2>
+      </div>
+      
+      {recentLogs.length === 0 ? (
+        <div className="text-center py-6 text-slate-500 dark:text-slate-400 text-sm border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+          Nenhuma requisição recente.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {recentLogs.map((log: any) => (
+            <div key={log.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-4">
+                <span className={cn(
+                  "px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider",
+                  log.type === 'INFO' && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+                  log.type === 'SUCCESS' && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+                  log.type === 'ERROR' && "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                )}>
+                  {log.type}
+                </span>
+                <div>
+                  <div className="text-sm font-mono text-slate-700 dark:text-slate-300">
+                    {log.method} <span className="text-slate-500 dark:text-slate-400">{log.url}</span>
+                  </div>
+                  {log.errorMessage && (
+                    <div className="text-xs text-red-500 mt-1">{log.errorMessage}</div>
+                  )}
+                </div>
+              </div>
+              <div className="text-xs text-slate-400 text-right">
+                <div>{new Date(log.timestamp).toLocaleTimeString()}</div>
+                {log.durationMs && <div>{log.durationMs}ms</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

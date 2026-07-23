@@ -5,6 +5,7 @@ import { MessageSquareText, Send, Info, Smartphone } from 'lucide-react';
 
 export function Simulator() {
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState<{customerId: string, subject: string, teamType: string, timestamp: string}[]>([]);
   const [formData, setFormData] = useState({
     customerId: '+5511999999999',
     subject: 'Gostaria de falar sobre meu cartão'
@@ -28,6 +29,13 @@ export function Simulator() {
       await simulateChat(formData.customerId, teamType, formData.subject);
       toast.success('Chat simulado enviado com sucesso!');
       
+      setHistory(prev => [{
+        customerId: formData.customerId,
+        subject: formData.subject,
+        teamType,
+        timestamp: new Date().toISOString()
+      }, ...prev]);
+
       // Resetar assunto para facilitar novo teste
       setFormData(prev => ({ ...prev, subject: '' }));
       
@@ -130,8 +138,44 @@ export function Simulator() {
             </ul>
           </div>
         </div>
-
       </div>
+
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm transition-colors duration-300">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+            <MessageSquareText className="text-amber-500" size={20} />
+            Histórico de Simulações Recentes
+          </h2>
+        </div>
+        
+        {history.length === 0 ? (
+          <div className="text-center py-8 text-slate-500 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl">
+            Nenhuma simulação realizada nesta sessão.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {history.map((sim, index) => (
+              <div key={index} className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm">Cliente: {sim.customerId}</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50">
+                      Roteado para: {sim.teamType}
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    {new Date(sim.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
+                <div className="text-sm text-slate-600 dark:text-slate-300 italic">
+                  "{sim.subject}"
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }

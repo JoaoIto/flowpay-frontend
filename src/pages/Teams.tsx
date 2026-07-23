@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
-import { getTeams, createTeam, type Team } from '../services/api';
+import { getTeams, createTeam, updateTeam, deleteTeam, type Team } from '../services/api';
 import toast from 'react-hot-toast';
-import { Plus, Server, Network } from 'lucide-react';
+import { Plus, Server, Network, Edit2, Trash2 } from 'lucide-react';
 
 export function Teams() {
   const [teams, setTeams] = useState<Team[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTeam, setNewTeam] = useState<Team>({ name: '', type: 'CARTOES' });
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  
+  const [currentTeam, setCurrentTeam] = useState<Team>({ id: '', name: '', type: 'CARTOES', createdAt: '' });
+  const [newTeam, setNewTeam] = useState<{name: string, type: string}>({ name: '', type: 'CARTOES' });
   const [loading, setLoading] = useState(true);
 
   const fetchTeams = async () => {
@@ -31,14 +35,45 @@ export function Teams() {
     try {
       await createTeam(newTeam);
       toast.success('Time criado com sucesso!');
-      setIsModalOpen(false);
+      setIsCreateModalOpen(false);
       setNewTeam({ name: '', type: 'CARTOES' });
       fetchTeams();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Falha de conexão com o servidor';
-      toast.error(`Erro ao criar time: ${message}`);
       console.error(error);
     }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateTeam(currentTeam.id, { name: currentTeam.name, type: currentTeam.type });
+      toast.success('Time atualizado com sucesso!');
+      setIsEditModalOpen(false);
+      fetchTeams();
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteTeam(currentTeam.id);
+      toast.success('Time excluído com sucesso!');
+      setIsDeleteModalOpen(false);
+      fetchTeams();
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+
+  const openEditModal = (team: Team) => {
+    setCurrentTeam(team);
+    setIsEditModalOpen(true);
+  };
+
+  const openDeleteModal = (team: Team) => {
+    setCurrentTeam(team);
+    setIsDeleteModalOpen(true);
   };
 
   return (
@@ -49,7 +84,7 @@ export function Teams() {
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Gerencie os departamentos de atendimento</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsCreateModalOpen(true)}
           className="bg-[#FFC700] hover:bg-amber-400 text-slate-950 px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md focus:ring-4 outline-none focus:ring-amber-400/20"
         >
           <Plus size={18} className="stroke-[3]" />
@@ -74,7 +109,7 @@ export function Teams() {
               <tr className="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-800">
                 <th className="px-6 py-4 text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider">Nome do Time</th>
                 <th className="px-6 py-4 text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider">Tipo (Roteamento)</th>
-                <th className="px-6 py-4 text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider">ID Interno</th>
+                <th className="px-6 py-4 text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -91,7 +126,24 @@ export function Teams() {
                       {team.type}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-400 dark:text-slate-500 font-mono">{team.id}</td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button 
+                        onClick={() => openEditModal(team)}
+                        className="p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors"
+                        title="Editar"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button 
+                        onClick={() => openDeleteModal(team)}
+                        className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors"
+                        title="Excluir"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -99,12 +151,12 @@ export function Teams() {
         )}
       </div>
 
-      {isModalOpen && (
+      {isCreateModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transition-colors duration-300">
             <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
               <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100">Cadastrar Novo Time</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                 <span className="text-2xl leading-none">&times;</span>
               </button>
             </div>
@@ -124,7 +176,7 @@ export function Teams() {
                 <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Tipo de Roteamento</label>
                 <select 
                   value={newTeam.type}
-                  onChange={e => setNewTeam({...newTeam, type: e.target.value as any})}
+                  onChange={e => setNewTeam({...newTeam, type: e.target.value})}
                   className="w-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 shadow-sm"
                 >
                   <option value="CARTOES">Cartões</option>
@@ -135,7 +187,7 @@ export function Teams() {
               <div className="flex items-center justify-end gap-3 pt-4">
                 <button 
                   type="button" 
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => setIsCreateModalOpen(false)}
                   className="px-5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors"
                 >
                   Cancelar
@@ -148,6 +200,91 @@ export function Teams() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transition-colors duration-300">
+            <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100">Editar Time</h3>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <span className="text-2xl leading-none">&times;</span>
+              </button>
+            </div>
+            <form onSubmit={handleUpdate} className="p-8 space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Nome do Time</label>
+                <input 
+                  required
+                  type="text" 
+                  value={currentTeam.name}
+                  onChange={e => setCurrentTeam({...currentTeam, name: e.target.value})}
+                  className="w-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 shadow-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Tipo de Roteamento</label>
+                <select 
+                  value={currentTeam.type}
+                  onChange={e => setCurrentTeam({...currentTeam, type: e.target.value})}
+                  className="w-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 shadow-sm"
+                >
+                  <option value="CARTOES">Cartões</option>
+                  <option value="EMPRESTIMOS">Empréstimos</option>
+                  <option value="OUTROS_ASSUNTOS">Outros Assuntos</option>
+                </select>
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit"
+                  className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-md transition-all"
+                >
+                  Atualizar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transition-colors duration-300">
+            <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-xl text-rose-600 dark:text-rose-500">Excluir Time</h3>
+              <button onClick={() => setIsDeleteModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <span className="text-2xl leading-none">&times;</span>
+              </button>
+            </div>
+            <div className="p-8 space-y-6">
+              <p className="text-slate-600 dark:text-slate-400">
+                Tem certeza que deseja excluir o time <strong className="text-slate-900 dark:text-slate-100">{currentTeam.name}</strong>? Esta ação não pode ser desfeita.
+              </p>
+              <div className="flex items-center justify-end gap-3 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="px-5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={handleDelete}
+                  className="px-6 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-md transition-all"
+                >
+                  Excluir Time
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

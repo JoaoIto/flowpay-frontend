@@ -8,7 +8,7 @@ class DashboardSseClient {
   private onMessageCallback: SseCallback | null = null;
   private isConnecting: boolean = false;
 
-  constructor(url: string = 'http://localhost:8080/api/v1/dashboard/stream') {
+  constructor(url: string = `${import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'}/dashboard/stream`) {
     this.url = url;
   }
 

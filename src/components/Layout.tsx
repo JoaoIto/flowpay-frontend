@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { LayoutDashboard, Users, MessageSquareText, Settings, Moon, Sun } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquareText, Moon, Sun, Activity } from 'lucide-react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { clsx } from 'clsx';
 
@@ -13,7 +13,7 @@ const navigation = [
   { name: 'Times e Filas', href: '/teams', icon: Users },
   { name: 'Agentes', href: '/agents', icon: Users },
   { name: 'Simulador', href: '/simulator', icon: MessageSquareText },
-  { name: 'Configurações', href: '/settings', icon: Settings },
+  { name: 'Logs do Sistema', href: '/logs', icon: Activity },
 ];
 
 export function Layout({ children }: LayoutProps) {
@@ -36,9 +36,9 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0B0F19] flex transition-colors duration-300">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#EBE5D9] dark:bg-[#0B0F19] border-r border-[#DCD5C6] dark:border-[#1C2438] flex flex-col transition-all duration-300">
-        <div className="h-16 flex items-center px-6 border-b border-[#DCD5C6] dark:border-[#1C2438]">
-          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-500">
+      <aside className="w-64 bg-[#F2EDE1] dark:bg-[#0B0F19] border-r border-[#E6DEC8] dark:border-[#1C2438] flex flex-col transition-all duration-300">
+        <div className="h-16 flex items-center px-6 border-b border-[#E6DEC8] dark:border-[#1C2438]">
+          <div className="flex items-center gap-2 text-amber-500">
             <MessageSquareText size={24} className="stroke-[2.5]" />
             <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">FlowPay</span>
           </div>
@@ -56,11 +56,11 @@ export function Layout({ children }: LayoutProps) {
                 className={clsx(
                   'flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200',
                   isActive 
-                    ? 'bg-amber-400/20 dark:bg-amber-400/10 text-amber-700 dark:text-amber-500' 
+                    ? 'bg-amber-400/10 text-amber-500 dark:bg-amber-400/10 dark:text-amber-400 shadow-sm' 
                     : 'text-slate-600 dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200'
                 )}
               >
-                <Icon size={20} className={isActive ? 'text-amber-700 dark:text-amber-500' : 'text-slate-500 dark:text-slate-500'} />
+                <Icon size={20} className={isActive ? 'text-amber-500 dark:text-amber-400' : 'text-slate-400 dark:text-slate-500'} />
                 {item.name}
               </NavLink>
             );

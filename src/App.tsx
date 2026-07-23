@@ -3,6 +3,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Teams } from './pages/Teams';
 import { Agents } from './pages/Agents';
 import { Simulator } from './pages/Simulator';
+import { Logs } from './pages/Logs';
 import { Layout } from './components/Layout';
 import { Toaster } from 'react-hot-toast';
 
@@ -17,6 +18,7 @@ function App() {
           <Route path="/teams" element={<Teams />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/simulator" element={<Simulator />} />
+          <Route path="/logs" element={<Logs />} />
         </Routes>
       </Layout>
     </Router>

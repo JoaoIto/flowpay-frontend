@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getAgents, createAgent, updateAgentStatus, getTeams, type Agent, type Team } from '../services/api';
+import { getAgents, createAgent, updateAgent, deleteAgent, updateAgentStatus, getTeams, type Agent, type Team } from '../services/api';
 import toast from 'react-hot-toast';
-import { Plus, UserCircle, RefreshCcw } from 'lucide-react';
+import { Plus, UserCircle, RefreshCcw, Edit2, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -12,7 +12,12 @@ function cn(...inputs: any[]) {
 export function Agents() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  
+  const [currentAgent, setCurrentAgent] = useState<Agent>({ id: '', name: '', teamId: '', status: 'AVAILABLE', activeChatsCount: 0, maxChats: 3 });
   const [newAgent, setNewAgent] = useState({ name: '', teamId: '' });
   const [loading, setLoading] = useState(true);
 
@@ -43,12 +48,33 @@ export function Agents() {
     try {
       await createAgent(newAgent);
       toast.success('Agente cadastrado com sucesso!');
-      setIsModalOpen(false);
+      setIsCreateModalOpen(false);
       setNewAgent({ name: '', teamId: '' });
       fetchData();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Falha de conexão com o servidor';
-      toast.error(`Erro ao cadastrar agente: ${message}`);
+      console.error(error);
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateAgent(currentAgent.id!, { name: currentAgent.name, maxChats: currentAgent.maxChats });
+      toast.success('Agente atualizado com sucesso!');
+      setIsEditModalOpen(false);
+      fetchData();
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteAgent(currentAgent.id!);
+      toast.success('Agente excluído com sucesso!');
+      setIsDeleteModalOpen(false);
+      fetchData();
+    } catch (error: any) {
       console.error(error);
     }
   };
@@ -60,8 +86,6 @@ export function Agents() {
       toast.success(`Status atualizado para ${newStatus}`);
       fetchData();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Falha de conexão';
-      toast.error(`Erro ao atualizar status: ${message}`);
       console.error(error);
     }
   };
@@ -77,6 +101,16 @@ export function Agents() {
     }
   };
 
+  const openEditModal = (agent: Agent) => {
+    setCurrentAgent(agent);
+    setIsEditModalOpen(true);
+  };
+
+  const openDeleteModal = (agent: Agent) => {
+    setCurrentAgent(agent);
+    setIsDeleteModalOpen(true);
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto">
       <div className="flex justify-between items-center">
@@ -85,7 +119,7 @@ export function Agents() {
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Controle de acesso e capacidade da operação</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsCreateModalOpen(true)}
           className="bg-[#FFC700] hover:bg-amber-400 text-slate-950 px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md focus:ring-4 outline-none focus:ring-amber-400/20"
         >
           <Plus size={18} className="stroke-[3]" />
@@ -115,9 +149,27 @@ export function Agents() {
                     <p className="text-xs text-slate-500 dark:text-slate-400">{getTeamName(agent.teamId)}</p>
                   </div>
                 </div>
-                <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border", getStatusVisuals(agent.status))}>
-                  {agent.status}
-                </span>
+                <div className="flex flex-col items-end gap-2">
+                  <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border", getStatusVisuals(agent.status))}>
+                    {agent.status}
+                  </span>
+                  <div className="flex gap-1">
+                    <button 
+                      onClick={() => openEditModal(agent)}
+                      className="p-1 text-slate-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors"
+                      title="Editar"
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                    <button 
+                      onClick={() => openDeleteModal(agent)}
+                      className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors"
+                      title="Excluir"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
@@ -154,12 +206,12 @@ export function Agents() {
         )}
       </div>
 
-      {isModalOpen && (
+      {isCreateModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl max-w-lg w-full overflow-hidden transition-colors duration-300">
             <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
               <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100">Cadastrar Novo Agente</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                 <span className="text-2xl leading-none">&times;</span>
               </button>
             </div>
@@ -192,7 +244,7 @@ export function Agents() {
               <div className="flex items-center justify-end gap-3 pt-4">
                 <button 
                   type="button" 
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => setIsCreateModalOpen(false)}
                   className="px-5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors"
                 >
                   Cancelar
@@ -205,6 +257,91 @@ export function Agents() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl max-w-lg w-full overflow-hidden transition-colors duration-300">
+            <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100">Editar Agente</h3>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <span className="text-2xl leading-none">&times;</span>
+              </button>
+            </div>
+            <form onSubmit={handleUpdate} className="p-8 space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Nome do Agente</label>
+                <input 
+                  required
+                  type="text" 
+                  value={currentAgent.name}
+                  onChange={e => setCurrentAgent({...currentAgent, name: e.target.value})}
+                  className="w-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 shadow-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Capacidade Máxima (Chats)</label>
+                <input 
+                  required
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={currentAgent.maxChats}
+                  onChange={e => setCurrentAgent({...currentAgent, maxChats: parseInt(e.target.value, 10)})}
+                  className="w-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 shadow-sm"
+                />
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit"
+                  className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-md transition-all"
+                >
+                  Atualizar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transition-colors duration-300">
+            <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-xl text-rose-600 dark:text-rose-500">Excluir Agente</h3>
+              <button onClick={() => setIsDeleteModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <span className="text-2xl leading-none">&times;</span>
+              </button>
+            </div>
+            <div className="p-8 space-y-6">
+              <p className="text-slate-600 dark:text-slate-400">
+                Tem certeza que deseja excluir o agente <strong className="text-slate-900 dark:text-slate-100">{currentAgent.name}</strong>? Esta ação não pode ser desfeita.
+              </p>
+              <div className="flex items-center justify-end gap-3 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="px-5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={handleDelete}
+                  className="px-6 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-md transition-all"
+                >
+                  Excluir Agente
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
