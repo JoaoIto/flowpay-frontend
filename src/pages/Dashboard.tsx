@@ -71,7 +71,7 @@ export function Dashboard() {
   const isStressed = globalMetrics.occupancyRatePercent > 90;
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500">
       
       {/* Connection Status & Header */}
       <div className="flex justify-between items-center">
@@ -83,8 +83,8 @@ export function Dashboard() {
         <div className={cn(
           "px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-colors",
           isConnected 
-            ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/50" 
-            : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/50"
+            ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50" 
+            : "bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50"
         )}>
           <span className={cn("w-2 h-2 rounded-full", isConnected ? "bg-emerald-500 animate-ping" : "bg-amber-500 animate-pulse")}></span>
           {isConnected ? 'SSE Live' : 'Conectando SSE...'}
@@ -98,7 +98,7 @@ export function Dashboard() {
           title="Taxa de Ocupação" 
           value={<AnimatedNumber value={globalMetrics.occupancyRatePercent} suffix="%" formatter={(v) => v.toFixed(1)} />} 
           subtitle="Chats ativos vs Capacidade"
-          icon={<Users className={isStressed ? "text-rose-500" : "text-blue-500"} />}
+          icon={<Users className={isStressed ? "text-rose-500" : "text-amber-500"} />}
           alert={isStressed}
         />
         
@@ -106,7 +106,7 @@ export function Dashboard() {
           title="TME (Tempo Médio)" 
           value={<AnimatedNumber value={globalMetrics.averageWaitTimeSeconds} suffix="s" formatter={(v) => v.toFixed(0)} />} 
           subtitle="Espera na fila"
-          icon={<Clock className="text-orange-500" />}
+          icon={<Clock className="text-amber-500" />}
         />
         
         <MetricCard 
@@ -128,10 +128,10 @@ export function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Real-time Queues */}
-        <div className="lg:col-span-2 bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-6 shadow-sm">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm transition-colors duration-300">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold flex items-center gap-2">
-              <Activity className="text-emerald-500" size={20} />
+            <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+              <Activity className="text-amber-500" size={20} />
               Filas Departamentais
             </h2>
           </div>
@@ -143,7 +143,7 @@ export function Dashboard() {
               </div>
             ) : (
               teamMetrics.map((team) => (
-                <div key={team.teamId} className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between transition-all hover:bg-slate-100 dark:hover:bg-slate-800/80">
+                <div key={team.teamId} className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between transition-all hover:bg-slate-100 dark:hover:bg-slate-800">
                   <div>
                     <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-lg">{team.teamName}</h3>
                     <div className="flex gap-4 mt-1">
@@ -157,7 +157,7 @@ export function Dashboard() {
                   </div>
                   <div className="text-right flex items-center gap-6">
                     <div className="text-center">
-                      <div className="text-sm text-slate-500 uppercase font-bold tracking-wider mb-1">Ativos</div>
+                      <div className="text-sm text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider mb-1">Ativos</div>
                       <div className="text-xl font-bold text-slate-900 dark:text-slate-100">
                         <AnimatedNumber value={team.activeChats} />
                       </div>
@@ -165,7 +165,7 @@ export function Dashboard() {
                     <div className="w-px h-10 bg-slate-200 dark:bg-slate-700"></div>
                     <div className="text-center">
                       <div className="text-sm text-amber-500 uppercase font-bold tracking-wider mb-1">Fila</div>
-                      <div className="text-2xl font-black text-amber-600 dark:text-amber-500">
+                      <div className="text-2xl font-black text-amber-500">
                         <AnimatedNumber value={team.queuedChats} />
                       </div>
                     </div>
@@ -177,8 +177,8 @@ export function Dashboard() {
         </div>
 
         {/* Global Stats Sidebar */}
-        <div className="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold mb-6">Status Operacional</h2>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm transition-colors duration-300">
+          <h2 className="text-lg font-bold mb-6 text-slate-900 dark:text-slate-100">Status Operacional</h2>
           
           <div className="space-y-8">
             <div>
@@ -201,13 +201,13 @@ export function Dashboard() {
                 <span className="text-slate-600 dark:text-slate-400 font-medium">Volume Global</span>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 text-center">
-                  <div className="text-3xl font-black text-slate-800 dark:text-slate-200">
+                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 text-center">
+                  <div className="text-3xl font-black text-slate-900 dark:text-slate-100">
                     <AnimatedNumber value={globalMetrics.totalActiveChats} />
                   </div>
-                  <div className="text-xs uppercase font-bold text-slate-500 mt-1">Ativos</div>
+                  <div className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 mt-1">Ativos</div>
                 </div>
-                <div className="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-xl border border-amber-100 dark:border-amber-800/30 text-center">
+                <div className="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-xl border border-amber-100 dark:border-amber-900/30 text-center">
                   <div className="text-3xl font-black text-amber-600 dark:text-amber-500">
                     <AnimatedNumber value={globalMetrics.totalQueuedChats} />
                   </div>
@@ -227,24 +227,24 @@ export function Dashboard() {
 function MetricCard({ title, value, subtitle, icon, alert = false }: any) {
   return (
     <div className={cn(
-      "bg-white dark:bg-dark-card border rounded-2xl p-5 shadow-sm transition-all hover:shadow-md",
-      alert ? "border-rose-300 dark:border-rose-800/50" : "border-slate-200 dark:border-dark-border"
+      "bg-white dark:bg-slate-900 border rounded-2xl p-6 shadow-sm transition-all hover:shadow-md duration-300",
+      alert ? "border-rose-200 dark:border-rose-900/50" : "border-slate-100 dark:border-slate-800"
     )}>
       <div className="flex justify-between items-start mb-4">
         <div className={cn(
           "w-12 h-12 rounded-xl flex items-center justify-center border",
-          alert ? "bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-800/50" : "bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700"
+          alert ? "bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-900/50" : "bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-900/30"
         )}>
           {icon}
         </div>
       </div>
       
       <div>
-        <h3 className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-1">{title}</h3>
-        <div className={cn("text-3xl font-bold tracking-tight", alert ? "text-rose-600 dark:text-rose-400" : "text-slate-900 dark:text-slate-50")}>
+        <h3 className="text-slate-600 dark:text-slate-400 font-medium text-sm mb-1">{title}</h3>
+        <div className={cn("text-3xl font-extrabold tracking-tight", alert ? "text-rose-600 dark:text-rose-400" : "text-slate-900 dark:text-slate-100")}>
           {value}
         </div>
-        <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">{subtitle}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">{subtitle}</p>
       </div>
     </div>
   );

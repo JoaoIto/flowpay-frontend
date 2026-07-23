@@ -1,15 +1,22 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
+import { Teams } from './pages/Teams';
+import { Agents } from './pages/Agents';
+import { Simulator } from './pages/Simulator';
 import { Layout } from './components/Layout';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <Router>
+      <Toaster position="top-right" />
       <Layout>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          {/* Add more routes for /queues and /agents as needed */}
+          <Route path="/teams" element={<Teams />} />
+          <Route path="/agents" element={<Agents />} />
+          <Route path="/simulator" element={<Simulator />} />
         </Routes>
       </Layout>
     </Router>
