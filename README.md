@@ -4,6 +4,8 @@
 
 O frontend atua como um "Monitor Operacional Vivo", refletindo instantaneamente as decisões matemáticas do backend sem realizar requisições contínuas ao banco de dados, utilizando arquitetura orientada a eventos.
 
+<img src="public\home.png">
+
 ---
 
 ## 📌 Sumário Rápido
