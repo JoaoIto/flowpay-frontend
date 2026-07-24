@@ -4,11 +4,13 @@
 - **React + Vite**: Escolhidos pela rapidez no build e desenvolvimento (HMR rápido).
 - **TypeScript**: Para garantir a tipagem do payload, evitando erros em tempo de compilação, como o bug corrigido na requisição de edição do Agente.
 - **Zustand**: Para gerenciar o estado global de `logsStore`, mantendo a reatividade dos logs do sistema em todas as views sem o boilerplate excessivo do Redux.
+- **Recharts**: Para visualização avançada de dados (Analytics), gráficos de pizza (demanda por time), barras (Tempo Médio de Espera), e o novíssimo **Monitoramento em Tempo Real** utilizando gráficos de área e simulação/apêndice "on-the-fly".
 - **Tailwind CSS**: Estilização adotada por permitir alinhar a UI perfeitamente ao tema "Clean Corporate Light" da Ubots sem escrever arquivos CSS extensos.
 
 ## 2. Decisões de UI/UX
 - **Identidade Visual**: Aplicamos as cores oficias (Off-white `bg-[#FAF7F2]`, Sidebar `bg-[#F2EDE1]` e Amarelo Dourado `text-amber-500` / `bg-[#FFC700]`).
 - **Feedback Constante**: Toast notifications (`react-hot-toast`) em todas as operações CRUD e simulações para garantir visibilidade do retorno do back-end.
+- **Integração de IA (Copilot)**: Construção da tela dedicada do Agente (`AgentView.tsx`) onde a IA analisa a mensagem do cliente (classificada e pontuada) e gera automaticamente sugestões de resposta para economizar o tempo de digitação (redução de TME).
 - **Painel de Logs (Logs da API)**: Implementado como uma página unificada e como um card no dashboard para expor claramente o que está trafegando (INFO, SUCCESS, ERROR) entre o frontend e backend. Essencial para acompanhamento sem acessar o devtools.
 - **Simulador Interativo**: O `Simulator.tsx` mantém um array de histórico das simulações locais, tornando visível na UI as respostas do motor de roteamento do back-end.
 

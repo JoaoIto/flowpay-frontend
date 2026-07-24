@@ -54,3 +54,7 @@ Para logs operacionais da aplicação e monitoramento de requests HTTP, o fronte
 ## 6. Operações Assíncronas (CRUD & Axios)
 
 As entidades principais (Times e Agentes) interagem através de modais na interface. O controle das requisições POST/PUT/DELETE usa instâncias do `axios` encapsuladas no arquivo `api.ts`, interceptando toda solicitação antes dela ser disparada ou quando for retornada. Esta camada garante que erros do tipo Constraints Violations gerem alertas visuais uniformizados (Toasts) amigáveis ao usuário, desvinculando o React de lógicas pesadas de serialização.
+
+## 7. Gráficos em Tempo Real (Recharts)
+
+O uso de `Recharts` proporciona visualização moderna. A aba **Monitoramento em Tempo Real** opera sobre o estado derivado da stream `SSE`. Não utilizando "Mocks", a aba constrói o histórico dos dados da sessão assim que aberta, apendando novos `data-points` (via *setInterval* pareado aos dados SSE) a cada 5 segundos na `AreaChart`, trazendo vida e controle visual tátil para o FlowPay.
