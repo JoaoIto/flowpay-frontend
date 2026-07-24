@@ -73,7 +73,7 @@ export function Dashboard() {
 
     // Subscribe to SSE for updates
     dashboardSse.connect(
-      (eventData) => {
+      () => {
         // Whenever an event arrives (e.g. CHAT_QUEUED), refetch the dashboard
         fetchDashboardData();
       },
