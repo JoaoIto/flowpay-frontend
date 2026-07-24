@@ -12,7 +12,8 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Times e Filas', href: '/teams', icon: Users },
   { name: 'Agentes', href: '/agents', icon: Users },
-  { name: 'Simulador', href: '/simulator', icon: MessageSquareText },
+  { name: 'Área do Agente', href: '/agent-view', icon: MessageSquareText },
+  { name: 'Simulador', href: '/simulator', icon: Activity },
   { name: 'Logs do Sistema', href: '/logs', icon: Activity },
 ];
 

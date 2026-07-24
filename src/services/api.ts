@@ -106,4 +106,9 @@ export const simulateChat = async (customerId: string, teamType: string, subject
   });
 };
 
+export const suggestResponse = async (message: string): Promise<string> => {
+  const res = await api.post('/ai/suggest', { message });
+  return res.data.suggestion;
+};
+
 export default api;

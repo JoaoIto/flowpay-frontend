@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Dashboard } from './pages/Dashboard';
 import { Teams } from './pages/Teams';
 import { Agents } from './pages/Agents';
+import { AgentView } from './pages/AgentView';
 import { Simulator } from './pages/Simulator';
 import { Logs } from './pages/Logs';
 import { Layout } from './components/Layout';
@@ -17,6 +18,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/teams" element={<Teams />} />
           <Route path="/agents" element={<Agents />} />
+          <Route path="/agent-view" element={<AgentView />} />
           <Route path="/simulator" element={<Simulator />} />
           <Route path="/logs" element={<Logs />} />
         </Routes>

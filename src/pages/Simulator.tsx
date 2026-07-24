@@ -17,32 +17,52 @@ export function Simulator() {
 
     try {
       setLoading(true);
-      // O backend roteia baseado em regras do subject: "cartão", "empréstimo"
-      let teamType = 'OUTROS_ASSUNTOS';
-      const lowerSubject = formData.subject.toLowerCase();
-      if (lowerSubject.includes('cartao') || lowerSubject.includes('cartão')) {
-        teamType = 'CARTOES';
-      } else if (lowerSubject.includes('emprestimo') || lowerSubject.includes('empréstimo')) {
-        teamType = 'EMPRESTIMOS';
-      }
-
-      await simulateChat(formData.customerId, teamType, formData.subject);
+      await simulateChat(formData.customerId, 'OUTROS_ASSUNTOS', formData.subject);
       toast.success('Chat simulado enviado com sucesso!');
       
       setHistory(prev => [{
         customerId: formData.customerId,
         subject: formData.subject,
-        teamType,
+        teamType: 'IA_DECIDE',
         timestamp: new Date().toISOString()
       }, ...prev]);
 
-      // Resetar assunto para facilitar novo teste
       setFormData(prev => ({ ...prev, subject: '' }));
-      
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Falha de conexão com o servidor';
-      toast.error(`Erro ao simular chat: ${message}`);
-      console.error(error);
+      toast.error('Erro ao simular chat');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStressTest = async () => {
+    try {
+      setLoading(true);
+      toast.loading('Iniciando Teste de Estresse (20 reqs)...', { id: 'stress' });
+      
+      const subjects = [
+        "meu cartão de crédito não funciona",
+        "preciso de um empréstimo urgente",
+        "quero investir na bolsa",
+        "cadê a porcaria da minha fatura?",
+        "falar com atendente agora",
+        "quero cancelar minha conta",
+        "esqueci a senha",
+        "como peço um cartão novo?",
+        "humano por favor",
+        "taxa do financiamento tá muito alta"
+      ];
+
+      const promises = Array.from({ length: 20 }).map((_, i) => {
+        const phone = `+551199999${String(i).padStart(4, '0')}`;
+        const randomSubject = subjects[Math.floor(Math.random() * subjects.length)];
+        return simulateChat(phone, 'OUTROS_ASSUNTOS', randomSubject);
+      });
+
+      await Promise.all(promises);
+      toast.success('Teste de estresse concluído com sucesso!', { id: 'stress' });
+    } catch (error) {
+      toast.error('Erro no teste de estresse', { id: 'stress' });
     } finally {
       setLoading(false);
     }
@@ -93,14 +113,23 @@ export function Simulator() {
                 />
               </div>
 
-              <div className="flex items-center justify-end pt-4">
+              <div className="flex items-center justify-between pt-4">
+                <button 
+                  type="button"
+                  onClick={handleStressTest}
+                  disabled={loading}
+                  className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  <MessageSquareText size={18} />
+                  Teste de Estresse (20 req)
+                </button>
                 <button 
                   disabled={loading}
                   type="submit"
                   className="px-6 py-3 rounded-xl bg-[#FFC700] hover:bg-amber-400 text-slate-950 text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <Send size={18} />
-                  {loading ? 'Processando...' : 'Injetar no Motor de Roteamento'}
+                  {loading ? 'Processando...' : 'Injetar 1 Chat'}
                 </button>
               </div>
             </form>
